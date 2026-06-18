@@ -3,6 +3,7 @@ import threading
 from typing import Generator
 from sqlalchemy import create_engine, Engine
 from sqlalchemy.orm import sessionmaker, Session
+from app.config import NewConfig
 
 # Module-level singletons (mirrors the Go package level variables)
 _engine: Engine = None
@@ -15,24 +16,25 @@ def get_instance() -> Engine:
     if _engine is None:
         with _lock:
             if _engine is None:
-                env = os.getenv("ENV", "dev").lower()
+                config = NewConfig()
+                env = config.GetEnvironment().lower()
                 
                 # Fetch credentials
                 db_url = os.getenv("DATABASE_URL")
                 if not db_url:
-                    host = os.getenv("DB_HOST", "localhost")
-                    user = os.getenv("DB_USER", "postgres")
-                    password = os.getenv("DB_PASSWORD", "postgres")
-                    dbname = os.getenv("DB_NAME", "inventory")
-                    port = os.getenv("DB_PORT", "5432")
-                    sslmode = os.getenv("DB_SSLMODE", "disable")
+                    host = config.GetDBHost()
+                    user = config.GetDBUser()
+                    password = config.GetDBPassword()
+                    dbname = config.GetDBName()
+                    port = config.GetDBPort()
+                    sslmode = config.GetDBSSLMode()
                     db_url = f"postgresql://{user}:{password}@{host}:{port}/{dbname}?sslmode={sslmode}"
                 
                 # Standardize Render/Heroku URLs
                 if db_url.startswith("postgres://"):
                     db_url = db_url.replace("postgres://", "postgresql://", 1)
                 
-                schema = os.getenv("DB_SCHEMA", "public")
+                schema = config.GetDBSchema()
                 
                 # Configure pool limits
                 if env in ("prod", "production"):
