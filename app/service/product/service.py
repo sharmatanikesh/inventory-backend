@@ -5,7 +5,6 @@ from app.repository.product.repository import ProductRepositoryInterface
 from app.interfaces.product import ProductServiceInterface
 
 class ProductService(ProductServiceInterface):
-    # Constructor Injection: we depend on the interface, not SQLAlchemy concrete class
     def __init__(self, repository: ProductRepositoryInterface):
         self.repository = repository
 
@@ -22,5 +21,13 @@ class ProductService(ProductServiceInterface):
         pass
 
     def update_stock(self, product_id: UUID, quantity: int) -> Optional[Product]:
+        # Implementation skeleton - business logic excluded
+        pass
+
+    def update_product(self, product_id: UUID, name: str, sku: str, price: float, quantity: int) -> Product:
+        # Implementation skeleton - business logic excluded
+        pass
+
+    def delete_product(self, product_id: UUID) -> None:
         # Implementation skeleton - business logic excluded
         pass

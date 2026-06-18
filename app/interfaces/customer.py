@@ -23,3 +23,8 @@ class CustomerServiceInterface(ABC):
     def register_customer(self, first_name: str, last_name: str, email: str, phone_number: Optional[str] = None) -> Customer:
         """Register a new customer."""
         pass
+
+    @abstractmethod
+    def delete_customer(self, customer_id: UUID) -> None:
+        """Soft-delete a customer after verifying no active dependencies."""
+        pass

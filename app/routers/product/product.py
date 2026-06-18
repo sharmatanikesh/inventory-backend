@@ -46,3 +46,26 @@ def list_products(
     service: ProductServiceInterface = Depends(get_product_service)
 ):
     return service.get_all_products(skip=skip, limit=limit)
+
+
+@router.put("/{product_id}")
+def update_product(
+    product_id: UUID,
+    payload: ProductCreateRequest,
+    service: ProductServiceInterface = Depends(get_product_service)
+):
+    return service.update_product(
+        product_id=product_id,
+        name=payload.name,
+        sku=payload.sku,
+        price=payload.price,
+        quantity=payload.quantity
+    )
+
+
+@router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_product(
+    product_id: UUID,
+    service: ProductServiceInterface = Depends(get_product_service)
+):
+    service.delete_product(product_id)

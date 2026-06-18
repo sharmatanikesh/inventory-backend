@@ -45,3 +45,14 @@ def list_orders(
     service: OrderServiceInterface = Depends(get_order_service)
 ):
     return service.get_all_orders(skip=skip, limit=limit)
+
+
+@router.delete("/{order_id}")
+def cancel_order(
+    order_id: UUID,
+    service: OrderServiceInterface = Depends(get_order_service)
+):
+    order = service.cancel_order(order_id)
+    if not order:
+        raise OrderNotFoundException()
+    return order

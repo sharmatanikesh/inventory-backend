@@ -23,3 +23,13 @@ class ProductServiceInterface(ABC):
     def update_stock(self, product_id: UUID, quantity: int) -> Optional[Product]:
         """Modify stock levels for a product."""
         pass
+
+    @abstractmethod
+    def update_product(self, product_id: UUID, name: str, sku: str, price: float, quantity: int) -> Product:
+        """Update product properties after validation checks."""
+        pass
+
+    @abstractmethod
+    def delete_product(self, product_id: UUID) -> None:
+        """Soft-delete a product."""
+        pass

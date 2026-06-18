@@ -47,3 +47,11 @@ def list_customers(
     service: CustomerServiceInterface = Depends(get_customer_service)
 ):
     return service.get_all_customers(skip=skip, limit=limit)
+
+
+@router.delete("/{customer_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_customer(
+    customer_id: UUID,
+    service: CustomerServiceInterface = Depends(get_customer_service)
+):
+    service.delete_customer(customer_id)

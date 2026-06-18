@@ -25,6 +25,11 @@ class OrderRepositoryInterface(ABC):
         """Update an order's status."""
         pass
 
+    @abstractmethod
+    def count_total(self) -> int:
+        """Count total orders."""
+        pass
+
 
 class SQLAlchemyOrderRepository(OrderRepositoryInterface):
     def __init__(self, db: Session):
@@ -43,5 +48,9 @@ class SQLAlchemyOrderRepository(OrderRepositoryInterface):
         pass
 
     def update_status(self, order_id: UUID, status: str) -> Optional[Order]:
+        # Implementation skeleton - actual db query code excluded
+        pass
+
+    def count_total(self) -> int:
         # Implementation skeleton - actual db query code excluded
         pass

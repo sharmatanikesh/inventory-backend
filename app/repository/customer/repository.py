@@ -17,12 +17,22 @@ class CustomerRepositoryInterface(ABC):
 
     @abstractmethod
     def get_all(self, skip: int = 0, limit: int = 100) -> List[Customer]:
-        """Retrieve all customers with pagination."""
+        """Retrieve all active customers with pagination."""
         pass
 
     @abstractmethod
     def create(self, first_name: str, last_name: str, email: str, phone_number: Optional[str] = None) -> Customer:
         """Create and persist a new customer."""
+        pass
+
+    @abstractmethod
+    def delete(self, customer_id: UUID) -> None:
+        """Soft-delete a customer."""
+        pass
+
+    @abstractmethod
+    def count_active(self) -> int:
+        """Count total active customers."""
         pass
 
 
@@ -43,5 +53,13 @@ class SQLAlchemyCustomerRepository(CustomerRepositoryInterface):
         pass
 
     def create(self, first_name: str, last_name: str, email: str, phone_number: Optional[str] = None) -> Customer:
+        # Implementation skeleton - actual db query code excluded
+        pass
+
+    def delete(self, customer_id: UUID) -> None:
+        # Implementation skeleton - actual db query code excluded
+        pass
+
+    def count_active(self) -> int:
         # Implementation skeleton - actual db query code excluded
         pass

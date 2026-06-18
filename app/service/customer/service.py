@@ -23,3 +23,7 @@ class CustomerService(CustomerServiceInterface):
     def register_customer(self, first_name: str, last_name: str, email: str, phone_number: Optional[str] = None) -> Customer:
         # Implementation skeleton - business logic excluded
         pass
+
+    def delete_customer(self, customer_id: UUID) -> None:
+        # Implementation skeleton - business logic excluded
+        pass
