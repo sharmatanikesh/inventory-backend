@@ -44,5 +44,7 @@ def load_env(env_path: str = ".env", example_path: str = ".env_example") -> None
             val = val[1:-1]
         elif val.startswith("'") and val.endswith("'"):
             val = val[1:-1]
-            
-        os.environ[key] = val
+
+        # Only set if NOT already in os.environ (enables container environment overrides)
+        if key not in os.environ:
+            os.environ[key] = val

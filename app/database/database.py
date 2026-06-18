@@ -108,3 +108,35 @@ def get_db() -> Generator[Session, None, None]:
         yield session
     finally:
         session.close()
+
+
+def init_db() -> None:
+    """Initializes database tables by executing baseline_schema.sql."""
+    engine = get_instance()
+    from sqlalchemy import inspect, text
+    import os
+    inspector = inspect(engine)
+    if not inspector.has_table("customers"):
+        current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        migrations_path = os.path.join(current_dir, "migrations", "baseline_schema.sql")
+        if os.path.exists(migrations_path):
+            print("Initializing database from baseline_schema.sql...")
+            with open(migrations_path, "r") as f:
+                sql_script = f.read()
+            with engine.begin() as conn:
+                conn.execute(text(sql_script))
+            print("Database initialized successfully.")
+        else:
+            print(f"Error: Migrations baseline script not found at {migrations_path}")
+    else:
+        print("Database tables already exist. Skipping initialization.")
+
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Database CLI utility")
+    parser.add_argument("--init-db", action="store_true", help="Initialize the database tables from baseline_schema.sql")
+    args = parser.parse_args()
+    
+    if args.init_db:
+        init_db()
