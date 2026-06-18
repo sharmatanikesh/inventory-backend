@@ -3,17 +3,18 @@ from sqlalchemy.orm import Session
 from app.database.database import get_db
 
 # Repositories
-from app.repository.product_repository import ProductRepositoryInterface, SQLAlchemyProductRepository
-from app.repository.customer_repository import CustomerRepositoryInterface, SQLAlchemyCustomerRepository
-from app.repository.order_repository import OrderRepositoryInterface, SQLAlchemyOrderRepository
+from app.repository.product.repository import ProductRepositoryInterface, SQLAlchemyProductRepository
+from app.repository.customer.repository import CustomerRepositoryInterface, SQLAlchemyCustomerRepository
+from app.repository.order.repository import OrderRepositoryInterface, SQLAlchemyOrderRepository
 
 # Services
-from app.service.interfaces.product_service import ProductServiceInterface
-from app.service.impl.product_service import ProductService
-from app.service.interfaces.customer_service import CustomerServiceInterface
-from app.service.impl.customer_service import CustomerService
-from app.service.interfaces.order_service import OrderServiceInterface
-from app.service.impl.order_service import OrderService
+from app.interfaces.product import ProductServiceInterface
+from app.service.product.service import ProductService
+from app.interfaces.customer import CustomerServiceInterface
+from app.service.customer.service import CustomerService
+from app.interfaces.order import OrderServiceInterface
+from app.service.order.service import OrderService
+
 
 # ----------------- REPOSITORIES -----------------
 

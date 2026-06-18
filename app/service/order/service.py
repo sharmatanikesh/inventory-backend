@@ -1,9 +1,9 @@
 from uuid import UUID
 from typing import List, Optional, Dict
 from app.models.order import Order
-from app.repository.order_repository import OrderRepositoryInterface
-from app.repository.product_repository import ProductRepositoryInterface
-from app.service.interfaces.order_service import OrderServiceInterface
+from app.repository.order.repository import OrderRepositoryInterface
+from app.repository.product.repository import ProductRepositoryInterface
+from app.interfaces.order import OrderServiceInterface
 
 class OrderService(OrderServiceInterface):
     def __init__(self, order_repo: OrderRepositoryInterface, product_repo: ProductRepositoryInterface):

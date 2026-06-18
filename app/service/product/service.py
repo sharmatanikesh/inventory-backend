@@ -1,8 +1,8 @@
 from uuid import UUID
 from typing import List, Optional
 from app.models.product import Product
-from app.repository.product_repository import ProductRepositoryInterface
-from app.service.interfaces.product_service import ProductServiceInterface
+from app.repository.product.repository import ProductRepositoryInterface
+from app.interfaces.product import ProductServiceInterface
 
 class ProductService(ProductServiceInterface):
     # Constructor Injection: we depend on the interface, not SQLAlchemy concrete class

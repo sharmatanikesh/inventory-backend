@@ -1,8 +1,8 @@
 from uuid import UUID
 from typing import List, Optional
 from app.models.customer import Customer
-from app.repository.customer_repository import CustomerRepositoryInterface
-from app.service.interfaces.customer_service import CustomerServiceInterface
+from app.repository.customer.repository import CustomerRepositoryInterface
+from app.interfaces.customer import CustomerServiceInterface
 
 class CustomerService(CustomerServiceInterface):
     def __init__(self, repository: CustomerRepositoryInterface):
