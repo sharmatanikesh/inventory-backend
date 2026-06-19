@@ -69,5 +69,9 @@ def get_order_controller(
 ) -> OrderController:
     return OrderController(service)
 
-def get_dashboard_controller() -> DashboardController:
-    return DashboardController()
+def get_dashboard_controller(
+    product_repo: ProductRepositoryInterface = Depends(get_product_repository),
+    customer_repo: CustomerRepositoryInterface = Depends(get_customer_repository),
+    order_repo: OrderRepositoryInterface = Depends(get_order_repository)
+) -> DashboardController:
+    return DashboardController(product_repo, customer_repo, order_repo)
