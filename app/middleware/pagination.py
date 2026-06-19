@@ -40,24 +40,36 @@ class PaginationMiddleware(BaseHTTPMiddleware):
                 # Reconstruct response if parsing fails
                 return Response(content=body, status_code=response.status_code, headers=dict(response.headers))
 
-            if isinstance(data, list):
+            is_wrapped = isinstance(data, dict) and data.get("success") is True and isinstance(data.get("data"), list)
+            
+            if isinstance(data, list) or is_wrapped:
+                list_to_paginate = data.get("data") if is_wrapped else data
                 try:
                     paginated_items, next_cursor, has_more = paginate_list(
-                        items=data,
+                        items=list_to_paginate,
                         cursor=cursor,
                         limit=limit,
                         sort_by=sort_by,
                         order=order
                     )
                     
-                    paginated_response = {
-                        "items": paginated_items,
-                        "pagination": {
-                            "next_cursor": next_cursor,
-                            "limit": limit,
-                            "has_more": has_more
-                        }
+                    pagination_info = {
+                        "next_cursor": next_cursor,
+                        "limit": limit,
+                        "has_more": has_more
                     }
+                    
+                    if is_wrapped:
+                        data["data"] = {
+                            "items": paginated_items,
+                            "pagination": pagination_info
+                        }
+                        paginated_response = data
+                    else:
+                        paginated_response = {
+                            "items": paginated_items,
+                            "pagination": pagination_info
+                        }
                     
                     new_body = json.dumps(paginated_response).encode("utf-8")
                     

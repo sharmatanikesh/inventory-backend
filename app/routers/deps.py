@@ -15,6 +15,12 @@ from app.service.customer.service import CustomerService
 from app.interfaces.order import OrderServiceInterface
 from app.service.order.service import OrderService
 
+# Controllers
+from app.controllers.product import ProductController
+from app.controllers.customer import CustomerController
+from app.controllers.order import OrderController
+from app.controllers.dashboard import DashboardController
+
 
 # ----------------- REPOSITORIES -----------------
 
@@ -44,3 +50,23 @@ def get_order_service(
     product_repo: ProductRepositoryInterface = Depends(get_product_repository)
 ) -> OrderServiceInterface:
     return OrderService(order_repo, product_repo)
+
+# ----------------- CONTROLLERS -----------------
+
+def get_product_controller(
+    service: ProductServiceInterface = Depends(get_product_service)
+) -> ProductController:
+    return ProductController(service)
+
+def get_customer_controller(
+    service: CustomerServiceInterface = Depends(get_customer_service)
+) -> CustomerController:
+    return CustomerController(service)
+
+def get_order_controller(
+    service: OrderServiceInterface = Depends(get_order_service)
+) -> OrderController:
+    return OrderController(service)
+
+def get_dashboard_controller() -> DashboardController:
+    return DashboardController()

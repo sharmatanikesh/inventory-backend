@@ -1,58 +1,38 @@
 from uuid import UUID
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from pydantic import BaseModel, Field
-from app.interfaces.order import OrderServiceInterface
-from app.routers.deps import get_order_service
-
-from app.utils.exceptions import OrderNotFoundException
+from fastapi import APIRouter, Depends, Query
+from app.schemas.order import OrderCreateRequest, OrderResponse
+from app.utils.response import APIResponse
+from app.controllers.order import OrderController
+from app.routers.deps import get_order_controller
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
-class OrderItemRequest(BaseModel):
-    product_id: UUID
-    quantity: int = Field(..., gt=0)
-
-class OrderCreateRequest(BaseModel):
-    customer_id: UUID
-    items: List[OrderItemRequest]
-
-
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=201, response_model=APIResponse[OrderResponse])
 def create_order(
     payload: OrderCreateRequest,
-    service: OrderServiceInterface = Depends(get_order_service)
-):
-    dict_items = [{"product_id": item.product_id, "quantity": item.quantity} for item in payload.items]
-    return service.place_order(customer_id=payload.customer_id, items=dict_items)
+    controller: OrderController = Depends(get_order_controller)
+) -> APIResponse[OrderResponse]:
+    return controller.place_order(payload)
 
-
-@router.get("/{order_id}")
+@router.get("/{order_id}", response_model=APIResponse[OrderResponse])
 def get_order(
     order_id: UUID,
-    service: OrderServiceInterface = Depends(get_order_service)
-):
-    order = service.get_order(order_id)
-    if not order:
-        raise OrderNotFoundException()
-    return order
+    controller: OrderController = Depends(get_order_controller)
+) -> APIResponse[OrderResponse]:
+    return controller.get_order(order_id)
 
-
-@router.get("/")
+@router.get("/", response_model=APIResponse[List[OrderResponse]])
 def list_orders(
     skip: int = Query(0, ge=0),
     limit: int = Query(10, ge=1, le=100),
-    service: OrderServiceInterface = Depends(get_order_service)
-):
-    return service.get_all_orders(skip=skip, limit=limit)
+    controller: OrderController = Depends(get_order_controller)
+) -> APIResponse[List[OrderResponse]]:
+    return controller.list_orders(skip=skip, limit=limit)
 
-
-@router.delete("/{order_id}")
+@router.delete("/{order_id}", response_model=APIResponse[OrderResponse])
 def cancel_order(
     order_id: UUID,
-    service: OrderServiceInterface = Depends(get_order_service)
-):
-    order = service.cancel_order(order_id)
-    if not order:
-        raise OrderNotFoundException()
-    return order
+    controller: OrderController = Depends(get_order_controller)
+) -> APIResponse[OrderResponse]:
+    return controller.cancel_order(order_id)

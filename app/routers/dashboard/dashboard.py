@@ -1,26 +1,13 @@
-from fastapi import APIRouter
-from pydantic import BaseModel
-from typing import List
+from fastapi import APIRouter, Depends
+from app.schemas.dashboard import DashboardSummaryResponse
+from app.utils.response import APIResponse
+from app.controllers.dashboard import DashboardController
+from app.routers.deps import get_dashboard_controller
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
-class LowStockProduct(BaseModel):
-    id: str
-    name: str
-    quantity: int
-
-class DashboardSummaryResponse(BaseModel):
-    total_products: int
-    total_customers: int
-    total_orders: int
-    low_stock_products: List[LowStockProduct]
-
-@router.get("/summary", response_model=DashboardSummaryResponse)
-def get_dashboard_summary():
-    # Skeleton implementation returning mock/dummy dashboard stats
-    return {
-        "total_products": 0,
-        "total_customers": 0,
-        "total_orders": 0,
-        "low_stock_products": []
-    }
+@router.get("/summary", response_model=APIResponse[DashboardSummaryResponse])
+def get_dashboard_summary(
+    controller: DashboardController = Depends(get_dashboard_controller)
+) -> APIResponse[DashboardSummaryResponse]:
+    return controller.get_summary()

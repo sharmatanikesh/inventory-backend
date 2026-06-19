@@ -1,71 +1,46 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from pydantic import BaseModel, Field
-from app.interfaces.product import ProductServiceInterface
-from app.routers.deps import get_product_service
-
-from app.utils.exceptions import ProductNotFoundException
+from typing import List
+from fastapi import APIRouter, Depends, Query
+from app.schemas.product import ProductCreateRequest, ProductResponse
+from app.utils.response import APIResponse
+from app.controllers.product import ProductController
+from app.routers.deps import get_product_controller
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
-class ProductCreateRequest(BaseModel):
-    name: str = Field(..., max_length=255)
-    sku: str = Field(..., max_length=100)
-    price: float = Field(..., gt=0.0)
-    quantity: int = Field(..., ge=0)
-
-
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=201, response_model=APIResponse[ProductResponse])
 def create_product(
     payload: ProductCreateRequest,
-    service: ProductServiceInterface = Depends(get_product_service)
-):
-    return service.create_product(
-        name=payload.name,
-        sku=payload.sku,
-        price=payload.price,
-        quantity=payload.quantity
-    )
+    controller: ProductController = Depends(get_product_controller)
+) -> APIResponse[ProductResponse]:
+    return controller.create_product(payload)
 
-
-@router.get("/{product_id}")
+@router.get("/{product_id}", response_model=APIResponse[ProductResponse])
 def get_product(
     product_id: UUID,
-    service: ProductServiceInterface = Depends(get_product_service)
-):
-    product = service.get_product(product_id)
-    if not product:
-        raise ProductNotFoundException()
-    return product
+    controller: ProductController = Depends(get_product_controller)
+) -> APIResponse[ProductResponse]:
+    return controller.get_product(product_id)
 
-
-@router.get("/")
+@router.get("/", response_model=APIResponse[List[ProductResponse]])
 def list_products(
     skip: int = Query(0, ge=0),
     limit: int = Query(10, ge=1, le=100),
-    service: ProductServiceInterface = Depends(get_product_service)
-):
-    return service.get_all_products(skip=skip, limit=limit)
+    controller: ProductController = Depends(get_product_controller)
+) -> APIResponse[List[ProductResponse]]:
+    return controller.list_products(skip=skip, limit=limit)
 
-
-@router.put("/{product_id}")
+@router.put("/{product_id}", response_model=APIResponse[ProductResponse])
 def update_product(
     product_id: UUID,
     payload: ProductCreateRequest,
-    service: ProductServiceInterface = Depends(get_product_service)
-):
-    return service.update_product(
-        product_id=product_id,
-        name=payload.name,
-        sku=payload.sku,
-        price=payload.price,
-        quantity=payload.quantity
-    )
+    controller: ProductController = Depends(get_product_controller)
+) -> APIResponse[ProductResponse]:
+    return controller.update_product(product_id, payload)
 
-
-@router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{product_id}", response_model=APIResponse[None])
 def delete_product(
     product_id: UUID,
-    service: ProductServiceInterface = Depends(get_product_service)
-):
-    service.delete_product(product_id)
+    controller: ProductController = Depends(get_product_controller)
+) -> APIResponse[None]:
+    return controller.delete_product(product_id)
