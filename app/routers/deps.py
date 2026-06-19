@@ -47,9 +47,10 @@ def get_customer_service(
 
 def get_order_service(
     order_repo: OrderRepositoryInterface = Depends(get_order_repository),
-    product_repo: ProductRepositoryInterface = Depends(get_product_repository)
+    product_repo: ProductRepositoryInterface = Depends(get_product_repository),
+    customer_repo: CustomerRepositoryInterface = Depends(get_customer_repository)
 ) -> OrderServiceInterface:
-    return OrderService(order_repo, product_repo)
+    return OrderService(order_repo, product_repo, customer_repo)
 
 # ----------------- CONTROLLERS -----------------
 

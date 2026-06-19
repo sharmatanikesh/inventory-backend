@@ -36,30 +36,48 @@ class CustomerRepositoryInterface(ABC):
         pass
 
 
+from sqlalchemy import func
+
 class SQLAlchemyCustomerRepository(CustomerRepositoryInterface):
     def __init__(self, db: Session):
         self.db = db
 
     def get_by_id(self, customer_id: UUID) -> Optional[Customer]:
-        # Implementation skeleton - actual db query code excluded
-        pass
+        return self.db.query(Customer).filter(
+            Customer.id == customer_id,
+            Customer.deleted_at.is_(None)
+        ).first()
 
     def get_by_email(self, email: str) -> Optional[Customer]:
-        # Implementation skeleton - actual db query code excluded
-        pass
+        return self.db.query(Customer).filter(
+            Customer.email == email,
+            Customer.deleted_at.is_(None)
+        ).first()
 
     def get_all(self, skip: int = 0, limit: int = 100) -> List[Customer]:
-        # Implementation skeleton - actual db query code excluded
-        pass
+        return self.db.query(Customer).filter(
+            Customer.deleted_at.is_(None)
+        ).offset(skip).limit(limit).all()
 
     def create(self, first_name: str, last_name: str, email: str, phone_number: Optional[str] = None) -> Customer:
-        # Implementation skeleton - actual db query code excluded
-        pass
+        customer = Customer(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            phone_number=phone_number
+        )
+        self.db.add(customer)
+        self.db.commit()
+        self.db.refresh(customer)
+        return customer
 
     def delete(self, customer_id: UUID) -> None:
-        # Implementation skeleton - actual db query code excluded
-        pass
+        customer = self.get_by_id(customer_id)
+        if customer:
+            customer.deleted_at = func.now()
+            self.db.commit()
 
     def count_active(self) -> int:
-        # Implementation skeleton - actual db query code excluded
-        pass
+        return self.db.query(Customer).filter(
+            Customer.deleted_at.is_(None)
+        ).count()

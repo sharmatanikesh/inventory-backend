@@ -51,42 +51,68 @@ class ProductRepositoryInterface(ABC):
         pass
 
 
+from sqlalchemy import func
+
 class SQLAlchemyProductRepository(ProductRepositoryInterface):
     def __init__(self, db: Session):
         self.db = db
 
     def get_by_id(self, product_id: UUID) -> Optional[Product]:
-        # Implementation skeleton - actual db query code excluded
-        pass
+        return self.db.query(Product).filter(
+            Product.id == product_id,
+            Product.deleted_at.is_(None)
+        ).first()
 
     def get_by_sku(self, sku: str) -> Optional[Product]:
-        # Implementation skeleton - actual db query code excluded
-        pass
+        return self.db.query(Product).filter(
+            Product.sku == sku,
+            Product.deleted_at.is_(None)
+        ).first()
 
     def get_all(self, skip: int = 0, limit: int = 100) -> List[Product]:
-        # Implementation skeleton - actual db query code excluded
-        pass
+        return self.db.query(Product).filter(
+            Product.deleted_at.is_(None)
+        ).offset(skip).limit(limit).all()
 
     def create(self, name: str, sku: str, price: float, quantity: int) -> Product:
-        # Implementation skeleton - actual db query code excluded
-        pass
+        product = Product(name=name, sku=sku, price=price, quantity=quantity)
+        self.db.add(product)
+        self.db.commit()
+        self.db.refresh(product)
+        return product
 
     def update_quantity(self, product_id: UUID, quantity: int) -> Optional[Product]:
-        # Implementation skeleton - actual db query code excluded
-        pass
+        product = self.get_by_id(product_id)
+        if product:
+            product.quantity = quantity
+            self.db.commit()
+            self.db.refresh(product)
+        return product
 
     def update(self, product_id: UUID, name: str, sku: str, price: float, quantity: int) -> Optional[Product]:
-        # Implementation skeleton - actual db query code excluded
-        pass
+        product = self.get_by_id(product_id)
+        if product:
+            product.name = name
+            product.sku = sku
+            product.price = price
+            product.quantity = quantity
+            self.db.commit()
+            self.db.refresh(product)
+        return product
 
     def delete(self, product_id: UUID) -> None:
-        # Implementation skeleton - actual db query code excluded
-        pass
+        product = self.get_by_id(product_id)
+        if product:
+            product.deleted_at = func.now()
+            self.db.commit()
 
     def count_active(self) -> int:
-        # Implementation skeleton - actual db query code excluded
-        pass
+        return self.db.query(Product).filter(
+            Product.deleted_at.is_(None)
+        ).count()
 
     def get_low_stock(self, threshold: int) -> List[Product]:
-        # Implementation skeleton - actual db query code excluded
-        pass
+        return self.db.query(Product).filter(
+            Product.deleted_at.is_(None),
+            Product.quantity < threshold
+        ).all()
