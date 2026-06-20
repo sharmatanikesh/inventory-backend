@@ -1,4 +1,4 @@
-.PHONY: run init-db seed seed-force install docker-up docker-down docker-setup
+.PHONY: run init-db seed seed-force install docker-up docker-down docker-setup db-shell db-tables backend-logs
 
 # Configuration variables
 VENV_DIR = .venv
@@ -39,3 +39,15 @@ docker-setup:
 	docker compose up --build -d
 	docker compose run --rm backend python -m app.database.database --init-db
 	docker compose run --rm backend python -m app.database.seeds.seed
+
+# 9. Open interactive PostgreSQL terminal inside the database container
+db-shell:
+	docker compose exec db psql -U postgres -d inventory
+
+# 10. List all database tables and relations
+db-tables:
+	docker compose exec db psql -U postgres -d inventory -c "\dt"
+
+# 11. Follow and view backend container logs
+backend-logs:
+	docker compose logs -f backend
