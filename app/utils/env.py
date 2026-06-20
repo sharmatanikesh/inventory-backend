@@ -36,7 +36,11 @@ def load_env(env_path: str = ".env", example_path: str = ".env_example") -> None
     for key in sorted(all_keys):
         val = env_vars.get(key)
         if val is None:
+            if key in os.environ:
+                continue
             val = example_vars.get(key, "")
+            if val == "":
+                continue
             print(f"Warning: Environment variable '{key}' not found in {env_path}. Using fallback from {example_path}.")
         
         # Strip outer quotes if present

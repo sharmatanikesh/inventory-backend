@@ -20,7 +20,8 @@ class Config:
 
     def get_env_var(self, key: str, default: str = "") -> str:
         """Helper to fetch from os.environ."""
-        return os.environ.get(key, default)
+        val = os.environ.get(key, default)
+        return val if val != "" else default
 
     def GetEnvironment(self) -> str:
         return self.get_env_var("ENV", DevEnv)
