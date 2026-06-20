@@ -6,13 +6,20 @@ A production-ready Python backend implementing clean architecture, custom API re
 
 ## 1. Quick Start with Docker Compose
 
-The database and backend services are fully containerized and configured via `docker-compose.yml` in the project root. All database configuration values are dynamic and can be injected at startup.
+The database and backend services are fully containerized and configured via `docker-compose.yml` in the `inventory-backend` directory. All database configuration values are dynamic and can be injected at startup.
+
+### One-Command Setup (Start Backend, Init DB, and Seed Data)
+To build and start the services, initialize the schema, and seed the mock data in one step:
+```bash
+# Execute from the inventory-backend directory
+make docker-setup
+```
 
 ### Run with Default Environment Values
 To build and start all services using default PostgreSQL credentials (`postgres`/`postgres`):
 ```bash
-# Execute from the project root directory containing docker-compose.yml
-docker compose up --build -d
+# Execute from the inventory-backend directory
+make docker-up
 ```
 *On start, the backend container will automatically run the database CLI tool to initialize the database tables from [baseline_schema.sql](app/migrations/baseline_schema.sql) if they do not exist.*
 
@@ -23,8 +30,8 @@ You can override credentials at run-time by passing host environment variables d
 DB_PASSWORD=my_secure_password DB_PORT=5433 DB_NAME=inventory_db docker compose up --build -d
 ```
 
-### Run using a Root-level `.env` File
-Alternatively, create a `.env` file in the project root directory next to `docker-compose.yml`:
+### Run using a `.env` File
+Alternatively, create a `.env` file in the `inventory-backend` directory next to `docker-compose.yml`:
 ```env
 DB_USER=admin
 DB_PASSWORD=secretpassword
@@ -33,12 +40,12 @@ DB_PORT=5432
 ```
 Docker Compose will automatically pick up this file and interpolate the variables into the containers when you run:
 ```bash
-docker compose up --build -d
+make docker-up
 ```
 
 To stop all running containerized services and preserve persistent data:
 ```bash
-docker compose down
+make docker-down
 ```
 
 ---
