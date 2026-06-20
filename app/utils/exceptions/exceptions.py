@@ -71,8 +71,20 @@ class InsufficientStockException(BadRequestException):
     default_error_code: str = "INSUFFICIENT_STOCK"
 
 
+import structlog
+
+logger = structlog.get_logger()
+
 # Global handler for FastAPI
 async def app_exception_handler(request: Request, exc: AppException):
+    # Log 5xx errors as ERROR, and 4xx errors as WARNING
+    log_func = logger.error if exc.status_code >= 500 else logger.warning
+    log_func(
+        "Application exception raised",
+        status_code=exc.status_code,
+        error_code=exc.error_code,
+        message=exc.message,
+    )
     return JSONResponse(
         status_code=exc.status_code,
         content={

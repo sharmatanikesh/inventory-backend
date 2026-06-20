@@ -115,6 +115,10 @@ def get_db() -> Generator[Session, None, None]:
         session.close()
 
 
+import structlog
+
+logger = structlog.get_logger()
+
 def init_db() -> None:
     """Initializes database tables by executing baseline_schema.sql."""
     engine = get_instance()
@@ -125,16 +129,16 @@ def init_db() -> None:
         current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         migrations_path = os.path.join(current_dir, "migrations", "baseline_schema.sql")
         if os.path.exists(migrations_path):
-            print("Initializing database from baseline_schema.sql...")
+            logger.info("Initializing database from baseline_schema.sql")
             with open(migrations_path, "r") as f:
                 sql_script = f.read()
             with engine.begin() as conn:
                 conn.execute(text(sql_script))
-            print("Database initialized successfully.")
+            logger.info("Database initialized successfully")
         else:
-            print(f"Error: Migrations baseline script not found at {migrations_path}")
+            logger.error("Migrations baseline script not found", path=migrations_path)
     else:
-        print("Database tables already exist. Skipping initialization.")
+        logger.info("Database tables already exist, skipping initialization")
 
 
 if __name__ == "__main__":
@@ -144,4 +148,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     if args.init_db:
+        from app.utils.logger import setup_logger
+        setup_logger()
         init_db()

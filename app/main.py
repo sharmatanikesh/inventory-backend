@@ -3,9 +3,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers.router import main_router
 from app.utils.exceptions import AppException, app_exception_handler
 from app.middleware.pagination import PaginationMiddleware
+from app.utils.logger import setup_logger
+from app.middleware.logging import StructuredLoggingMiddleware
+
+# Initialize structured logging configuration
+setup_logger()
 
 app = FastAPI(title="Inventory & Order Management API")
 
+# Order of middleware: outer-most runs first
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,9 +19,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(StructuredLoggingMiddleware)
+app.add_middleware(PaginationMiddleware)
 
 app.add_exception_handler(AppException, app_exception_handler)
-app.add_middleware(PaginationMiddleware)
 
 app.include_router(main_router)
 

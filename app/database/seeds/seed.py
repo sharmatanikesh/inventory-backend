@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime, timedelta, timezone
+import structlog
 from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 
@@ -7,6 +8,8 @@ from app.models.customer import Customer
 from app.models.product import Product
 from app.models.order import Order
 from app.models.order_item import OrderItem
+
+logger = structlog.get_logger()
 
 # Seed data for 50 products
 PRODUCTS_DATA = [
@@ -130,17 +133,17 @@ def seed_db(db: Session, force_reset: bool = False) -> None:
     If force_reset is True, deletes all existing orders, customers, and products first.
     """
     if force_reset:
-        print("Force reset requested. Clearing existing database tables...")
+        logger.info("Force reset requested, clearing existing database tables")
         # Clear child dependencies first
         db.query(OrderItem).delete()
         db.query(Order).delete()
         db.query(Product).delete()
         db.query(Customer).delete()
         db.commit()
-        print("Database tables cleared.")
+        logger.info("Database tables cleared")
 
     # 1. Seed Products
-    print("Seeding products...")
+    logger.info("Seeding products")
     sku_to_product = {}
     for p_info in PRODUCTS_DATA:
         # Check if product already exists (by SKU) to avoid duplicates if reset is False
@@ -163,10 +166,11 @@ def seed_db(db: Session, force_reset: bool = False) -> None:
             sku_to_product[p_info["sku"]] = product
             
     db.commit()
-    print(f"Products seeded. Total: {db.query(Product).filter(Product.deleted_at.is_(None)).count()}")
+    product_count = db.query(Product).filter(Product.deleted_at.is_(None)).count()
+    logger.info("Products seeded", total=product_count)
 
     # 2. Seed Customers
-    print("Seeding customers...")
+    logger.info("Seeding customers")
     email_to_customer = {}
     for c_info in CUSTOMERS_DATA:
         existing_customer = db.query(Customer).filter(
@@ -187,10 +191,11 @@ def seed_db(db: Session, force_reset: bool = False) -> None:
             email_to_customer[c_info["email"]] = customer
             
     db.commit()
-    print(f"Customers seeded. Total: {db.query(Customer).filter(Customer.deleted_at.is_(None)).count()}")
+    customer_count = db.query(Customer).filter(Customer.deleted_at.is_(None)).count()
+    logger.info("Customers seeded", total=customer_count)
 
     # 3. Seed Orders and Items
-    print("Seeding orders...")
+    logger.info("Seeding orders")
     now = datetime.now(timezone.utc)
     
     for o_info in ORDERS_DATA:
@@ -247,13 +252,18 @@ def seed_db(db: Session, force_reset: bool = False) -> None:
         order.total_amount = total_amount
         
     db.commit()
-    print(f"Orders and order items seeded successfully. Total Orders: {db.query(Order).count()}")
+    order_count = db.query(Order).count()
+    logger.info("Orders and order items seeded successfully", total_orders=order_count)
 
 
 if __name__ == "__main__":
     import argparse
     from sqlalchemy.orm import sessionmaker
     from app.database.database import get_instance
+    from app.utils.logger import setup_logger
+    
+    # Initialize logger for CLI usage
+    setup_logger()
     
     parser = argparse.ArgumentParser(description="Database Seeding CLI utility")
     parser.add_argument("--force", action="store_true", help="Force database reset (deletion of all existing data) before seeding")
@@ -264,9 +274,9 @@ if __name__ == "__main__":
     db = SessionLocal()
     try:
         seed_db(db, force_reset=args.force)
-        print("Database seeded successfully via standalone CLI.")
+        logger.info("Database seeded successfully via standalone CLI")
     except Exception as e:
-        print(f"Error during seeding: {e}")
+        logger.error("Error during seeding", exception=str(e), exc_info=True)
         db.rollback()
     finally:
         db.close()
