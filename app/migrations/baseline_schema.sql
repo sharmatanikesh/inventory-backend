@@ -7,24 +7,61 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ==========================================
+-- 0. TABLE: users
+-- ==========================================
+-- Stores user credentials, roles (ADMIN/CUSTOMER), and active status.
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(50) DEFAULT 'CUSTOMER' NOT NULL, -- ADMIN, CUSTOMER
+    is_active BOOLEAN DEFAULT TRUE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE UNIQUE INDEX idx_users_email_active ON users (email) WHERE deleted_at IS NULL;
+
+-- ==========================================
 -- 1. TABLE: customers
 -- ==========================================
 -- Stores customer profiles. Full name is split into first_name and last_name.
 -- Email is unique among active (non-deleted) customers and indexed for fast retrieval.
--- deleted_at stores the deletion timestamp for soft deletes and audit records.
+-- Link to users credentials via user_id.
 CREATE TABLE customers (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL,
     phone_number VARCHAR(50),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    deleted_at TIMESTAMP WITH TIME ZONE
+    deleted_at TIMESTAMP WITH TIME ZONE,
+    
+    CONSTRAINT fk_customers_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 -- Unique index on active customer emails only to allow reuse of email address after deletion
 CREATE UNIQUE INDEX idx_customers_email_active ON customers (email) WHERE deleted_at IS NULL;
+
+-- ==========================================
+-- 1.5 TABLE: user_refresh_tokens
+-- ==========================================
+-- Stores user refresh token hashes to allow session revocation.
+CREATE TABLE user_refresh_tokens (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL,
+    token_hash VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    
+    CONSTRAINT fk_refresh_tokens_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX idx_refresh_tokens_hash ON user_refresh_tokens (token_hash);
+
 
 -- ==========================================
 -- 2. TABLE: products

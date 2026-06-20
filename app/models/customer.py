@@ -1,21 +1,26 @@
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
-from sqlalchemy import String, DateTime, func, Index
+from sqlalchemy import String, DateTime, func, Index, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base
 
 if TYPE_CHECKING:
     from app.models.order import Order
+    from app.models.user import User
 
 class Customer(Base):
     __tablename__ = "customers"
     
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
     first_name: Mapped[str] = mapped_column(String(100), nullable=False)
     last_name: Mapped[str] = mapped_column(String(100), nullable=False)
     email: Mapped[str] = mapped_column(String(255), nullable=False)
     phone_number: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    
+    user: Mapped[Optional["User"]] = relationship(back_populates="customer")
+
     
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), 

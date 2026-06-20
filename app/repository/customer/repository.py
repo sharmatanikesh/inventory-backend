@@ -21,8 +21,8 @@ class CustomerRepositoryInterface(ABC):
         pass
 
     @abstractmethod
-    def create(self, first_name: str, last_name: str, email: str, phone_number: Optional[str] = None) -> Customer:
-        """Create and persist a new customer."""
+    def create(self, first_name: str, last_name: str, email: str, phone_number: Optional[str] = None, user_id: Optional[UUID] = None) -> Customer:
+        """Create and persist a new customer linked to user credentials."""
         pass
 
     @abstractmethod
@@ -59,8 +59,9 @@ class SQLAlchemyCustomerRepository(CustomerRepositoryInterface):
             Customer.deleted_at.is_(None)
         ).offset(skip).limit(limit).all()
 
-    def create(self, first_name: str, last_name: str, email: str, phone_number: Optional[str] = None) -> Customer:
+    def create(self, first_name: str, last_name: str, email: str, phone_number: Optional[str] = None, user_id: Optional[UUID] = None) -> Customer:
         customer = Customer(
+            user_id=user_id,
             first_name=first_name,
             last_name=last_name,
             email=email,
@@ -70,6 +71,7 @@ class SQLAlchemyCustomerRepository(CustomerRepositoryInterface):
         self.db.commit()
         self.db.refresh(customer)
         return customer
+
 
     def delete(self, customer_id: UUID) -> None:
         customer = self.get_by_id(customer_id)

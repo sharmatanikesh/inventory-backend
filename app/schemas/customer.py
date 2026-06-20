@@ -15,7 +15,9 @@ class CustomerResponse(BaseModel):
     last_name: str
     email: EmailStr
     phone_number: Optional[str] = None
+    password: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
