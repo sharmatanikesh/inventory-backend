@@ -191,36 +191,19 @@ def seed_db(db: Session, force_reset: bool = False) -> None:
         
     db.commit()
     
-    # 2b. Seed Customer Users & Customers
+    # 2b. Seed Customers
     email_to_customer = {}
     for c_info in CUSTOMERS_DATA:
-        # Check User first
-        existing_user = db.query(User).filter(User.email == c_info["email"], User.deleted_at.is_(None)).first()
-        if not existing_user:
-            temp_pass = c_info["first_name"][:4].lower() + "1234"
-            existing_user = User(
-                email=c_info["email"],
-                password_hash=get_password_hash(temp_pass),
-                role="CUSTOMER",
-                is_active=True
-            )
-            db.add(existing_user)
-            db.flush()
-            logger.info(f"Customer user created ({c_info['email']} / {temp_pass})")
-            
         existing_customer = db.query(Customer).filter(
             Customer.email == c_info["email"],
             Customer.deleted_at.is_(None)
         ).first()
         
         if existing_customer:
-            # Update user_id reference if not set
-            if not existing_customer.user_id:
-                existing_customer.user_id = existing_user.id
             email_to_customer[c_info["email"]] = existing_customer
         else:
             customer = Customer(
-                user_id=existing_user.id,
+                user_id=None,
                 first_name=c_info["first_name"],
                 last_name=c_info["last_name"],
                 email=c_info["email"],
@@ -231,7 +214,8 @@ def seed_db(db: Session, force_reset: bool = False) -> None:
             
     db.commit()
     customer_count = db.query(Customer).filter(Customer.deleted_at.is_(None)).count()
-    logger.info("Customers and customer users seeded successfully", total=customer_count)
+    logger.info("Customers seeded successfully", total=customer_count)
+
 
 
     # 3. Seed Orders and Items
