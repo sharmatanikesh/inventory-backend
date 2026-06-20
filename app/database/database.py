@@ -44,14 +44,19 @@ def get_instance() -> Engine:
                     max_open_conns = 20
                     max_idle_conns = 10
                 
-                # Map Go pool configurations to SQLAlchemy Engine/QueuePool parameters
+                # Map pool configurations to SQLAlchemy Engine/QueuePool parameters
+                connect_args = {}
+                # Only pass search_path option if schema is custom (not "public") to avoid issues with Neon/PgBouncer poolers
+                if schema and schema.lower() != "public":
+                    connect_args["options"] = f"-c search_path={schema}"
+
                 _engine = create_engine(
                     db_url,
                     pool_size=max_idle_conns,
                     max_overflow=max_open_conns - max_idle_conns,
                     pool_recycle=1800,  # 30 minutes
                     pool_pre_ping=True,
-                    connect_args={"options": f"-c search_path={schema}"}
+                    connect_args=connect_args
                 )
                 _SessionLocal = sessionmaker(bind=_engine)
     return _engine
