@@ -51,15 +51,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50/50 px-4 py-12 sm:px-6 lg:px-8 dark:bg-slate-900/50">
-      <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-2xl border border-slate-100 shadow-xl shadow-slate-100/50 dark:bg-slate-950 dark:border-slate-800/80 dark:shadow-none">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50/80 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-2xl border border-slate-100 shadow-xl shadow-slate-100/50">
         
         {/* Branding / Header */}
         <div className="text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600 text-white font-extrabold text-lg shadow-md shadow-indigo-100 dark:shadow-none">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600 text-white font-extrabold text-lg shadow-md shadow-indigo-100">
             TS
           </div>
-          <h2 className="mt-6 text-2xl font-black tracking-tight text-slate-800 dark:text-slate-100">
+          <h2 className="mt-6 text-2xl font-black tracking-tight text-slate-800">
             Sign in to your account
           </h2>
           <p className="mt-2 text-xs text-slate-400 font-medium">
@@ -83,7 +83,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full rounded-lg border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3 text-sm text-slate-800 placeholder-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+                  className="block w-full rounded-lg border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3 text-sm text-slate-800 placeholder-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   placeholder="name@example.com"
                 />
               </div>
@@ -102,7 +102,7 @@ export default function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full rounded-lg border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3 text-sm text-slate-800 placeholder-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+                  className="block w-full rounded-lg border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3 text-sm text-slate-800 placeholder-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   placeholder="••••••••"
                 />
               </div>
@@ -128,7 +128,7 @@ export default function LoginPage() {
         </form>
 
         {/* Demo Helper box */}
-        <div className="mt-6 border-t border-slate-100 pt-6 dark:border-slate-800/80">
+        <div className="mt-6 border-t border-slate-100 pt-6">
           <p className="text-xxs font-bold uppercase tracking-widest text-slate-400 text-center mb-3">
             Quick Fill Demo Account
           </p>
@@ -136,7 +136,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => fillCredentials("admin")}
-              className="w-full rounded-lg border border-slate-200/80 bg-white hover:bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600 shadow-sm transition-colors text-center dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-850"
+              className="w-full rounded-lg border border-slate-200/80 bg-white hover:bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600 shadow-sm transition-colors text-center"
             >
               Admin Staff Demo Account
             </button>
