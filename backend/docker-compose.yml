@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
       POSTGRES_DB: ${DB_NAME:-inventory}
     ports:
-      - "5435:5432" # Maps port 5435 on host to 5432 in database container
+      - "5435:5432" # Maps port 5435 on the host to 5432 in the container
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -19,12 +19,11 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    networks:
-      - app-network
+
   # FastAPI Backend Service
   backend:
     build:
-      context: ./inventory-backend
+      context: .
       dockerfile: Dockerfile
     container_name: inventory_backend
     restart: always
@@ -36,30 +35,9 @@ services:
       - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@db:5432/${DB_NAME:-inventory}?sslmode=disable
     ports:
       - "8000:8000"
-    command: sh -c "python -m app.database.database --init-db && uvicorn app.main:app --host 0.0.0.0 --port 8000"
-    networks:
-      - app-network
-  # React Frontend Service
-  frontend:
-    build:
-      context: ./inventory-frontend
-      dockerfile: Dockerfile
-      args:
-        - VITE_API_URL=http://backend:8000
-    container_name: inventory_frontend
-    restart: always
-    depends_on:
-      - backend
-    environment:
-      - BACKEND_API_URL=http://backend:8000
-      - PORT=5173
-    ports:
-      - "5173:5173"
-    networks:
-      - app-network
+    command: >
+      sh -c "python -m app.database.database --init-db &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
 volumes:
   postgres_data:
-
-networks:
-  app-network:
-    driver: bridge
